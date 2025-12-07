@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMOC | Self-Made. Own the Cold.</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --text-main: #e0e0e0;
+            --text-muted: #666666;
+            --steel: #C0C0C0;
+            --gold: #C5B358;
+            --border-color: #2a2a2a;
+            
+            --font-head: 'Montserrat', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            
+            --easing: cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-head);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- UTILITIES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+            letter-spacing: -0.05em;
+        }
+
+        .gold-accent {
+            color: var(--gold);
+        }
+
+        .section-padding {
+            padding: 120px 0;
+        }
+
+        /* --- ANIMATION CLASSES (Observer) --- */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s var(--easing);
+        }
+
+        .reveal-up.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .blur-in {
+            filter: blur(10px);
+            opacity: 0;
+            transition: all 1.2s var(--easing);
+        }
+
+        .blur-in.in-view {
+            filter: blur(0);
+            opacity: 1;
+        }
+
+        /* --- SECTION 1: HERO --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* The Metallic Chain Animation */
+        .chain-loader {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            animation: spinFade 1.5s var(--easing) forwards;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chain-loader::after {
+            content: '';
+            width: 60%;
+            height: 60%;
+            border: 2px solid var(--steel);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spinFade {
+            0% { opacity: 1; transform: scale(0.8); }
+            80% { opacity: 0; transform: scale(1.2); }
+            100% { opacity: 0; display: none; }
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            color: var(--text-main);
+            opacity: 0; /* JS handles reveal */
+            animation: heroTextReveal 1.5s var(--easing) 1.5s forwards;
+            background: linear-gradient(180deg, #fff 0%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p.subtitle {
+            font-family: var(--font-mono);
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 2.0s forwards;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .hero-btn-wrapper {
+            margin-top: 40px;
+            opacity: 0;
+            animation: slideUp 1s var(--easing) 2.5s forwards;
+        }
+
+        .cta-btn {
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            padding: 15px 40px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--text-main);
+            transition: transform 0.4s var(--easing);
+            z-index: -1;
+        }
+
+        .cta-btn:hover {
+            color: var(--bg-dark);
+        }
+
+        .cta-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .micro-copy {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3s forwards, pulse 2s infinite 3s;
+        }
+
+        /* --- SECTION 2: IDENTITY --- */
+        .identity {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .identity-lines h2 {
+            font-size: clamp(3rem, 6vw, 6rem);
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .line {
+            display: block;
+            transform-origin: left;
+        }
+
+        .identity-desc {
+            margin-top: 40px;
+            max-width: 500px;
+            color: var(--steel);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            border-left: 2px solid var(--gold);
+            padding-left: 20px;
+        }
+
+        /* --- SECTION 3: OFFERINGS (GRID) --- */
+        .offerings {
+            background-color: var(--bg-dark);
+        }
+
+        .grid-header {
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+            cursor: crosshair;
+        }
+
+        /* Metallic Glint Effect */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 150%;
+            transition: left 0.7s ease;
+        }
+
+        .card:hover {
+            border-color: var(--steel);
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover .icon-box svg {
+            stroke: var(--gold);
+        }
+
+        .card h3 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .card p {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .card-c:hover h3 {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: var(--steel);
+        }
+
+        /* --- SECTION 4: THE FEELING (Scroll Interaction) --- */
+        .feeling {
+            height: 300vh; /* Long scroll area */
+            position: relative;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        }
+
+        .feeling-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Cold Fog Effect */
+        .fog-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
+            pointer-events: none;
+        }
+
+        .dynamic-text {
+            font-size: clamp(2rem, 5vw, 4rem);
+            text-align: center;
+            text-transform: uppercase;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            position: absolute;
+            width: 100%;
+            padding: 0 20px;
+            letter-spacing: 0.1em;
+        }
+
+        /* --- SECTION 5: CRAFT --- */
+        .craft {
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .craft-list {
+            list-style: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .craft-item {
+            padding: 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            color: var(--steel);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s var(--easing);
+        }
+
+        .craft-item.in-view {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .check {
+            color: var(--gold);
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease 0.3s;
+        }
+
+        .craft-item.in-view .check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- SECTION 6: LEAD CAPTURE --- */
+        .lead-capture {
+            position: relative;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1c1c1c 100%);
+            border-top: 1px solid var(--gold);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--steel);
+            padding: 15px 0;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-bottom-color: var(--gold);
+        }
+
+        input::placeholder {
+            color: #444;
+        }
+
+        .submit-btn {
+            background: var(--bg-dark);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 20px 60px;
+            font-family: var(--font-head);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(197, 179, 88, 0.1);
+        }
+
+        .submit-btn:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 20px rgba(197, 179, 88, 0.4);
+        }
+
+        /* Success Pulse Animation */
+        .pulse-aura {
+            animation: aura 2s infinite;
+            border-color: var(--gold) !important;
+        }
+
+        @keyframes aura {
+            0% { box-shadow: 0 0 0 0 rgba(197, 179, 88, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(197, 179, 88, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(197, 179, 88, 0); }
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* --- KEYFRAMES --- */
+        @keyframes heroTextReveal {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(10px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.5; }
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 15vw; }
+            .identity-lines h2 { font-size: 8vw; }
+            .grid-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .feeling { height: 250vh; }
+        }
+
+        /* SVG Icons Styling */
+        svg {
+            stroke: var(--steel);
+            stroke-width: 2;
+            fill: none;
+            width: 24px;
+            height: 24px;
+            transition: stroke 0.3s ease;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Section 1: Hero -->
+    <section class="hero" id="home">
+        <!-- CSS Animation Placeholder for Video -->
+        <div class="chain-loader"></div>
+        
+        <div class="hero-content">
+            <h1>SMOC</h1>
+            <p class="subtitle">Self-Made. Own the Cold.</p>
+            
+            <div class="hero-btn-wrapper">
+                <button class="cta-btn" onclick="document.getElementById('offerings').scrollIntoView()">GET NOTIFIED</button>
+                <span class="micro-copy">ACCESSORIES THAT SPEAK WITHOUT NOISE.</span>
+            </div>
+        </div>
+
+        <div class="scroll-cue">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M7 13L12 18L17 13M12 6L12 17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Section 2: Identity Statement -->
+    <section class="identity section-padding">
+        <div class="container">
+            <div class="identity-lines">
+                <h2 class="line reveal-up">SILENT.</h2>
+                <h2 class="line reveal-up" style="transition-delay: 0.2s">STRONG.</h2>
+                <h2 class="line reveal-up" style="transition-delay: 0.4s">UNMISTAKABLE.</h2>
+            </div>
+            
+            <p class="identity-desc blur-in">
+                SMOC is a modern street accessory brand crafting minimal steel, black and gold essentials — engineered to elevate your fit with cold confidence.
+            </p>
+        </div>
+    </section>
+
+    <!-- Section 3: Offerings -->
+    <section class="offerings section-padding" id="offerings">
+        <div class="container">
+            <div class="grid-header reveal-up">
+                <span class="mono gold-accent">01 // ARSENAL</span>
+                <p class="mono" style="color: var(--text-muted)">CURRENTLY IN DEVELOPMENT</p>
+            </div>
+
+            <div class="offer-grid">
+                <!-- Tile A -->
+                <div class="card reveal-up" style="transition-delay: 0.1s">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M8 12h8" /></svg>
+                    </div>
+                    <div>
+                        <h3>Chains & Rings</h3>
+                        <p>Clean metal pieces for everyday armor. High-grade steel blends.</p>
+                    </div>
+                </div>
+
+                <!-- Tile B -->
+                <div class="card reveal-up" style="transition-delay: 0.2s">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div>
+                        <h3>Fit Builder Kits</h3>
+                        <p>Curated drip combos that eliminate guesswork. Stacked by design.</p>
+                    </div>
+                </div>
+
+                <!-- Tile C -->
+                <div class="card card-c reveal-up" style="transition-delay: 0.3s">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2 13 10 12 10 9 2 4.62 3.46 2 20h20z"/></svg>
+                    </div>
+                    <div>
+                        <h3>Clothing Drops</h3>
+                        <p>Limited street releases — when the time is right. <span class="gold-accent">LOCKED.</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: The Feeling (Visuals) -->
+    <section class="feeling" id="feeling-section">
+        <div class="feeling-sticky">
+            <div class="fog-layer"></div>
+            <h2 id="dynamic-text" class="dynamic-text">WEAR THE QUIET FLEX.</h2>
+        </div>
+    </section>
+
+    <!-- Section 5: Craft -->
+    <section class="craft section-padding">
+        <div class="container">
+            <div class="grid-header reveal-up">
+                <span class="mono gold-accent">02 // SPECS</span>
+            </div>
+
+            <ul class="craft-list">
+                <li class="craft-item">
+                    <span>Mixed Metal Options → Affordable</span>
+                    <span class="check">✓</span>
+                </li>
+                <li class="craft-item" style="transition-delay: 0.1s">
+                    <span>Stainless Steel Line → Upgrade Path</span>
+                    <span class="check">✓</span>
+                </li>
+                <li class="craft-item" style="transition-delay: 0.2s">
+                    <span>₹350–₹1200 Entry Range</span>
+                    <span class="check">✓</span>
+                </li>
+                <li class="craft-item" style="transition-delay: 0.3s">
+                    <span>High value without loud branding</span>
+                    <span class="check">✓</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Section 6: Join -->
+    <section class="lead-capture section-padding">
+        <div class="container">
+            <h2 class="reveal-up" style="font-size: 3rem; text-transform: uppercase;">Be First. Drops. Perks.</h2>
+            <p class="mono reveal-up" style="margin-top: 10px; color: var(--gold)">NO SPAM — ONLY STEEL.</p>
+            
+            <form class="form-box reveal-up" id="joinForm">
+                <div class="input-group">
+                    <input type="email" placeholder="EMAIL ADDRESS" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="INSTAGRAM (OPTIONAL)">
+                </div>
+                <button type="submit" class="submit-btn">Enter the Circle</button>
+            </form>
+            <p id="successMessage" class="mono gold-accent" style="margin-top: 20px; display: none;">WELCOME TO THE COLD.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <h3 style="margin-bottom: 20px;">SMOC</h3>
+            <p>Future Looks: COMING SOON</p>
+            <br>
+            <p>&copy; 2025 Self-Made. Own the Cold.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. INTERSECTION OBSERVER FOR SCROLL REVEALS ---
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    // Optional: Stop observing once revealed
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-up, .blur-in, .craft-item').forEach(el => {
+            observer.observe(el);
+        });
+
+
+        // --- 2. DYNAMIC TEXT CHANGE ON SCROLL (Section 4) ---
+        const feelingSection = document.getElementById('feeling-section');
+        const dynamicText = document.getElementById('dynamic-text');
+        
+        const phrases = [
+            "WEAR THE QUIET FLEX.",
+            "SPEAK LESS. DRIP MORE.",
+            "OWN THE COLD."
+        ];
+
+        window.addEventListener('scroll', () => {
+            const rect = feelingSection.getBoundingClientRect();
+            const viewHeight = window.innerHeight;
+            
+            // Calculate progress through the section (0 to 1)
+            // We adjust offsets to ensure text changes happen comfortably within the sticky area
+            let progress = (viewHeight - rect.top) / (rect.height + viewHeight);
+            
+            if (progress > 0 && progress < 1) {
+                let index = 0;
+                if (progress > 0.33) index = 1;
+                if (progress > 0.66) index = 2;
+
+                // Only update if text is different to avoid flickering
+                if (dynamicText.innerText !== phrases[index]) {
+                    dynamicText.style.opacity = 0;
+                    setTimeout(() => {
+                        dynamicText.innerText = phrases[index];
+                        dynamicText.style.opacity = 1;
+                    }, 200);
+                }
+            }
+        });
+
+
+        // --- 3. FORM INTERACTION ---
+        const form = document.getElementById('joinForm');
+        const btn = form.querySelector('.submit-btn');
+        const successMsg = document.getElementById('successMessage');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Simulation of "Processing"
+            btn.innerText = "INITIALIZING...";
+            btn.style.opacity = "0.7";
+            
+            setTimeout(() => {
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+                // Trigger Pulse Animation on the section container or text
+                document.querySelector('.lead-capture').classList.add('pulse-aura');
+            }, 1500);
+        });
+
+    </script>
+</body>
+</html>
