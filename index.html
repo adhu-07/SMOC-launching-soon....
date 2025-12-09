@@ -3,777 +3,573 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMOC | Self-Made. Own the Cold.</title>
+    <title>SMOC | PRE-LAUNCH</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Oswald (Condensed/Brutal) and Space Mono (Tech/Cold) -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-
     <style>
-        /* --- RESET & VARIABLES --- */
+        /* --- CORE AESTHETICS --- */
         :root {
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --text-main: #e0e0e0;
-            --text-muted: #666666;
-            --steel: #C0C0C0;
-            --gold: #C5B358;
-            --border-color: #2a2a2a;
-            
-            --font-head: 'Montserrat', sans-serif;
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --font-head: 'Oswald', sans-serif;
             --font-mono: 'Space Mono', monospace;
-            
-            --easing: cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: var(--font-head);
-            overflow-x: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden; /* Control the flow */
+            cursor: none; /* Hide default cursor for custom one */
+            user-select: none;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- UTILITIES --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        /* --- TYPOGRAPHY UTILS --- */
+        .font-brutal { font-family: var(--font-head); text-transform: uppercase; letter-spacing: -0.02em; }
+        .font-cold { font-family: var(--font-mono); }
+        
+        /* --- GRAIN OVERLAY --- */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.07;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: noiseMove 0.5s steps(10) infinite;
+        }
+        @keyframes noiseMove {
+            0% { transform: translate(0,0); }
+            10% { transform: translate(-5%, -5%); }
+            20% { transform: translate(-10%, 5%); }
+            30% { transform: translate(5%, -10%); }
+            40% { transform: translate(-5%, 15%); }
+            50% { transform: translate(-10%, 5%); }
+            60% { transform: translate(15%, 0); }
+            70% { transform: translate(0, 10%); }
+            80% { transform: translate(-15%, 0); }
+            90% { transform: translate(10%, 5%); }
+            100% { transform: translate(5%, 0); }
         }
 
-        .mono {
-            font-family: var(--font-mono);
-            letter-spacing: -0.05em;
+        /* --- FROST TORCH CURSOR --- */
+        .cursor-torch {
+            position: fixed;
+            top: 0; left: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 30%, rgba(0,0,0,0) 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            transition: width 0.2s ease, height 0.2s ease;
+        }
+        .cursor-dot {
+            position: fixed;
+            top: 0; left: 0;
+            width: 6px; height: 6px;
+            background: white;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10000;
         }
 
-        .gold-accent {
-            color: var(--gold);
-        }
-
-        .section-padding {
-            padding: 120px 0;
-        }
-
-        /* --- ANIMATION CLASSES (Observer) --- */
-        .reveal-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1s var(--easing);
-        }
-
-        .reveal-up.in-view {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .blur-in {
-            filter: blur(10px);
-            opacity: 0;
-            transition: all 1.2s var(--easing);
-        }
-
-        .blur-in.in-view {
-            filter: blur(0);
-            opacity: 1;
-        }
-
-        /* --- SECTION 1: HERO --- */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        /* --- GLITCH EFFECTS --- */
+        .glitch-text {
             position: relative;
-            z-index: 10;
         }
-
-        /* The Metallic Chain Animation */
-        .chain-loader {
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
             position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            animation: spinFade 1.5s var(--easing) forwards;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .chain-loader::after {
-            content: '';
-            width: 60%;
-            height: 60%;
-            border: 2px solid var(--steel);
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s infinite linear;
-        }
-
-        @keyframes spinFade {
-            0% { opacity: 1; transform: scale(0.8); }
-            80% { opacity: 0; transform: scale(1.2); }
-            100% { opacity: 0; display: none; }
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        .hero-content {
-            text-align: center;
-            z-index: 2;
-        }
-
-        .hero h1 {
-            font-size: clamp(4rem, 15vw, 12rem);
-            line-height: 0.8;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            color: var(--text-main);
-            opacity: 0; /* JS handles reveal */
-            animation: heroTextReveal 1.5s var(--easing) 1.5s forwards;
-            background: linear-gradient(180deg, #fff 0%, #666 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p.subtitle {
-            font-family: var(--font-mono);
-            color: var(--gold);
-            font-size: 0.9rem;
-            margin-top: 20px;
-            opacity: 0;
-            animation: fadeIn 1s ease-out 2.0s forwards;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .hero-btn-wrapper {
-            margin-top: 40px;
-            opacity: 0;
-            animation: slideUp 1s var(--easing) 2.5s forwards;
-        }
-
-        .cta-btn {
-            background: transparent;
-            border: 1px solid var(--text-main);
-            color: var(--text-main);
-            padding: 15px 40px;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .cta-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            background: var(--text-main);
-            transition: transform 0.4s var(--easing);
-            z-index: -1;
+            background: var(--bg-color);
+        }
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+            display: none; /* Only show on trigger */
+        }
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+            display: none; /* Only show on trigger */
+        }
+        .glitching::before, .glitching::after { display: block; }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(13px, 9999px, 81px, 0); }
+            20% { clip: rect(68px, 9999px, 8px, 0); }
+            40% { clip: rect(26px, 9999px, 140px, 0); }
+            60% { clip: rect(3px, 9999px, 60px, 0); }
+            80% { clip: rect(96px, 9999px, 126px, 0); }
+            100% { clip: rect(62px, 9999px, 4px, 0); }
         }
 
-        .cta-btn:hover {
-            color: var(--bg-dark);
-        }
+        /* --- UTILITY ANIMATIONS --- */
+        .fade-in { animation: fadeIn 1s ease forwards; }
+        .fade-out { animation: fadeOut 0.5s ease forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        .cta-btn:hover::before {
-            transform: translateX(100%);
-        }
-
-        .micro-copy {
-            display: block;
-            margin-top: 10px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-        }
-
-        .scroll-cue {
-            position: absolute;
-            bottom: 30px;
-            opacity: 0;
-            animation: fadeIn 1s ease-out 3s forwards, pulse 2s infinite 3s;
-        }
-
-        /* --- SECTION 2: IDENTITY --- */
-        .identity {
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .identity-lines h2 {
-            font-size: clamp(3rem, 6vw, 6rem);
-            line-height: 1.1;
+        /* --- BUTTON STYLES --- */
+        .btn-cold {
+            border: 1px solid white;
+            color: white;
+            background: transparent;
             text-transform: uppercase;
-        }
-
-        .line {
-            display: block;
-            transform-origin: left;
-        }
-
-        .identity-desc {
-            margin-top: 40px;
-            max-width: 500px;
-            color: var(--steel);
-            font-family: var(--font-mono);
-            line-height: 1.6;
-            border-left: 2px solid var(--gold);
-            padding-left: 20px;
-        }
-
-        /* --- SECTION 3: OFFERINGS (GRID) --- */
-        .offerings {
-            background-color: var(--bg-dark);
-        }
-
-        .grid-header {
-            margin-bottom: 60px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .offer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 40px;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            letter-spacing: 0.2em;
+            padding: 1rem 3rem;
+            transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
             position: relative;
             overflow: hidden;
-            transition: border-color 0.3s ease;
-            cursor: crosshair;
         }
-
-        /* Metallic Glint Effect */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.1), 
-                transparent
-            );
-            transform: skewX(-25deg);
-            transition: left 0.5s ease;
-        }
-
-        .card:hover::before {
-            left: 150%;
-            transition: left 0.7s ease;
-        }
-
-        .card:hover {
-            border-color: var(--steel);
-        }
-
-        .icon-box {
-            width: 50px;
-            height: 50px;
-            border: 1px solid var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+        .btn-cold:hover {
+            background: white;
+            color: black;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
         }
         
-        .card:hover .icon-box svg {
-            stroke: var(--gold);
-        }
-
-        .card h3 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .card p {
-            font-family: var(--font-mono);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .card-c:hover h3 {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-            color: var(--steel);
-        }
-
-        /* --- SECTION 4: THE FEELING (Scroll Interaction) --- */
-        .feeling {
-            height: 300vh; /* Long scroll area */
-            position: relative;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-        }
-
-        .feeling-sticky {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* Cold Fog Effect */
-        .fog-layer {
+        .frost-grow::before {
+            content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
-            pointer-events: none;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .btn-cold:hover .frost-grow::before { opacity: 0.3; }
+
+        /* The Shake Animation for NO button */
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        .dynamic-text {
-            font-size: clamp(2rem, 5vw, 4rem);
-            text-align: center;
-            text-transform: uppercase;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            position: absolute;
+        /* --- FREEZE LINE --- */
+        .freeze-line-container {
             width: 100%;
-            padding: 0 20px;
-            letter-spacing: 0.1em;
-        }
-
-        /* --- SECTION 5: CRAFT --- */
-        .craft {
-            background-color: var(--bg-card);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .craft-list {
-            list-style: none;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .craft-item {
-            padding: 40px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            color: var(--steel);
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: all 0.5s var(--easing);
-        }
-
-        .craft-item.in-view {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .check {
-            color: var(--gold);
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.3s ease 0.3s;
-        }
-
-        .craft-item.in-view .check {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* --- SECTION 6: LEAD CAPTURE --- */
-        .lead-capture {
+            height: 2px;
+            background: #222;
             position: relative;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1c1c1c 100%);
-            border-top: 1px solid var(--gold);
-            text-align: center;
+            margin: 2rem 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
+        }
+        .freeze-progress {
+            height: 100%;
+            background: white;
+            width: 0%; /* JS will control */
+            position: absolute;
+            transition: width 1s linear;
+            box-shadow: 0 0 10px white;
+        }
+        .freeze-particles {
+            position: absolute;
+            width: 100%; height: 20px;
+            top: -10px;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="1" fill="white" opacity="0.5"/></svg>');
+            opacity: 0.3;
         }
 
-        .form-box {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 40px;
-            position: relative;
+        /* --- CRACK ANIMATION (Launch) --- */
+        .crack-line {
+            position: fixed;
+            top: 50%; left: 50%;
+            width: 120vw; height: 10px;
+            background: white;
+            transform: translate(-50%, -50%) rotate(45deg) scaleX(0);
+            z-index: 80;
+            transition: transform 0.1s cubic-bezier(0.19, 1, 0.22, 1);
         }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--steel);
-            padding: 15px 0;
-            color: var(--text-main);
-            font-family: var(--font-mono);
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus {
-            border-bottom-color: var(--gold);
-        }
-
-        input::placeholder {
-            color: #444;
-        }
-
-        .submit-btn {
-            background: var(--bg-dark);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 20px 60px;
-            font-family: var(--font-head);
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            box-shadow: 0 0 10px rgba(197, 179, 88, 0.1);
-        }
-
-        .submit-btn:hover {
-            background: var(--gold);
-            color: #000;
-            box-shadow: 0 0 20px rgba(197, 179, 88, 0.4);
-        }
-
-        /* Success Pulse Animation */
-        .pulse-aura {
-            animation: aura 2s infinite;
-            border-color: var(--gold) !important;
-        }
-
-        @keyframes aura {
-            0% { box-shadow: 0 0 0 0 rgba(197, 179, 88, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(197, 179, 88, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(197, 179, 88, 0); }
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            padding: 40px 0;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* --- KEYFRAMES --- */
-        @keyframes heroTextReveal {
-            0% { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px); }
-            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: translateY(0); opacity: 0.5; }
-            50% { transform: translateY(10px); opacity: 1; }
-            100% { transform: translateY(0); opacity: 0.5; }
-        }
-
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 15vw; }
-            .identity-lines h2 { font-size: 8vw; }
-            .grid-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-            .feeling { height: 250vh; }
-        }
-
-        /* SVG Icons Styling */
-        svg {
-            stroke: var(--steel);
-            stroke-width: 2;
-            fill: none;
-            width: 24px;
-            height: 24px;
-            transition: stroke 0.3s ease;
-        }
-
+        
     </style>
 </head>
-<body>
+<body class="h-screen w-screen flex flex-col items-center justify-center relative">
 
-    <!-- Section 1: Hero -->
-    <section class="hero" id="home">
-        <!-- CSS Animation Placeholder for Video -->
-        <div class="chain-loader"></div>
-        
-        <div class="hero-content">
-            <h1>SMOC</h1>
-            <p class="subtitle">Self-Made. Own the Cold.</p>
-            
-            <div class="hero-btn-wrapper">
-                <button class="cta-btn" onclick="document.getElementById('offerings').scrollIntoView()">GET NOTIFIED</button>
-                <span class="micro-copy">ACCESSORIES THAT SPEAK WITHOUT NOISE.</span>
-            </div>
-        </div>
+    <!-- GRAIN OVERLAY -->
+    <div class="noise-overlay"></div>
 
-        <div class="scroll-cue">
-            <svg width="24" height="24" viewBox="0 0 24 24">
-                <path d="M7 13L12 18L17 13M12 6L12 17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
+    <!-- CUSTOM CURSOR -->
+    <div id="cursorTorch" class="cursor-torch"></div>
+    <div id="cursorDot" class="cursor-dot"></div>
+
+    <!-- === SCREEN 0: LOADING === -->
+    <section id="loadingScreen" class="absolute inset-0 z-40 bg-black flex items-center justify-center">
+        <p id="loadingText" class="font-cold text-sm md:text-base tracking-widest text-white animate-pulse">
+            INITIALIZING COLD PROTOCOL...
+        </p>
     </section>
 
-    <!-- Section 2: Identity Statement -->
-    <section class="identity section-padding">
-        <div class="container">
-            <div class="identity-lines">
-                <h2 class="line reveal-up">SILENT.</h2>
-                <h2 class="line reveal-up" style="transition-delay: 0.2s">STRONG.</h2>
-                <h2 class="line reveal-up" style="transition-delay: 0.4s">UNMISTAKABLE.</h2>
+    <!-- === SCREEN 1: THE COLD TEST === -->
+    <section id="testScreen" class="absolute inset-0 z-30 bg-black flex flex-col items-center justify-center hidden">
+        <h2 class="font-brutal text-3xl md:text-5xl mb-12 tracking-wide text-center px-4">ARE YOU SELF-MADE?</h2>
+        
+        <div class="flex gap-12 items-center">
+            <button id="btnYes" class="btn-cold font-cold text-sm md:text-lg frost-grow">
+                YES
+            </button>
+            <button id="btnNo" class="font-cold text-sm md:text-lg text-gray-400 border border-gray-800 px-12 py-4 tracking-widest transition-colors duration-200">
+                NO
+            </button>
+        </div>
+        <p id="rejectText" class="font-cold text-red-600 mt-8 opacity-0 tracking-widest text-xs md:text-sm absolute bottom-1/4">
+            COME BACK WHEN YOU ARE.
+        </p>
+    </section>
+
+    <!-- === SCREEN 2: MAIN CONTENT === -->
+    <section id="mainScreen" class="absolute inset-0 z-20 bg-black flex flex-col items-center justify-center hidden px-4">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-8 relative group cursor-pointer" id="brandTitle">
+            <h1 class="font-brutal text-7xl md:text-9xl leading-none tracking-tighter mix-blend-difference select-none glitch-text" data-text="SMOC">SMOC</h1>
+            <p class="font-cold text-xs md:text-sm tracking-[0.5em] mt-2 opacity-80">SELF MADE. OWN THE COLD.</p>
+        </div>
+
+        <div class="font-cold text-xs text-gray-500 animate-pulse mb-8">THE COLD IS COMING</div>
+
+        <!-- FREEZE LINE AREA -->
+        <div class="w-full max-w-4xl relative my-8">
+            <div class="flex justify-between font-cold text-[10px] md:text-xs text-gray-400 mb-2 uppercase">
+                <span>Freeze Level</span>
+                <span id="countdownDisplay">--.--.--</span>
             </div>
             
-            <p class="identity-desc blur-in">
-                SMOC is a modern street accessory brand crafting minimal steel, black and gold essentials — engineered to elevate your fit with cold confidence.
+            <div class="freeze-line-container cursor-pointer group" id="freezeContainer">
+                <div class="w-full h-[1px] bg-gray-900 absolute"></div>
+                <!-- The center block that grows -->
+                <div id="freezeBar" class="h-1 bg-white absolute left-1/2 transform -translate-x-1/2 w-0 transition-all duration-1000"></div>
+                <!-- Frost particles -->
+                <div class="absolute w-full h-full flex justify-center items-center pointer-events-none">
+                   <div class="w-2 h-2 bg-white rotate-45 transition-transform duration-300 group-hover:scale-150 group-active:scale-50"></div> 
+                </div>
+            </div>
+
+            <p id="freezeMessage" class="text-center font-cold text-[10px] text-gray-600 mt-2 transition-colors duration-200">
+                When the freeze reaches the edge, the real world gets cold.
             </p>
         </div>
-    </section>
 
-    <!-- Section 3: Offerings -->
-    <section class="offerings section-padding" id="offerings">
-        <div class="container">
-            <div class="grid-header reveal-up">
-                <span class="mono gold-accent">01 // ARSENAL</span>
-                <p class="mono" style="color: var(--text-muted)">CURRENTLY IN DEVELOPMENT</p>
-            </div>
+        <!-- CTA -->
+        <div class="mt-8 text-center flex flex-col items-center gap-4">
+            <a href="https://www.instagram.com/smoc_co?igsh=MXcxbXp5MHczZzZiaA==" target="_blank" class="btn-cold font-brutal text-xl tracking-widest group relative">
+                <span class="relative z-10 group-hover:glitch-text" data-text="FOLLOW THE COLD">FOLLOW THE COLD</span>
+            </a>
+            <span class="font-cold text-xs text-gray-500 tracking-widest">@smoc.official</span>
+        </div>
 
-            <div class="offer-grid">
-                <!-- Tile A -->
-                <div class="card reveal-up" style="transition-delay: 0.1s">
-                    <div class="icon-box">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M8 12h8" /></svg>
-                    </div>
-                    <div>
-                        <h3>Chains & Rings</h3>
-                        <p>Clean metal pieces for everyday armor. High-grade steel blends.</p>
-                    </div>
-                </div>
-
-                <!-- Tile B -->
-                <div class="card reveal-up" style="transition-delay: 0.2s">
-                    <div class="icon-box">
-                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                    </div>
-                    <div>
-                        <h3>Fit Builder Kits</h3>
-                        <p>Curated drip combos that eliminate guesswork. Stacked by design.</p>
-                    </div>
-                </div>
-
-                <!-- Tile C -->
-                <div class="card card-c reveal-up" style="transition-delay: 0.3s">
-                    <div class="icon-box">
-                        <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2 13 10 12 10 9 2 4.62 3.46 2 20h20z"/></svg>
-                    </div>
-                    <div>
-                        <h3>Clothing Drops</h3>
-                        <p>Limited street releases — when the time is right. <span class="gold-accent">LOCKED.</span></p>
-                    </div>
-                </div>
-            </div>
+        <!-- FOOTER -->
+        <div class="absolute bottom-6 font-cold text-[10px] text-gray-700">
+            &copy; 2025 SMOC
         </div>
     </section>
 
-    <!-- Section 4: The Feeling (Visuals) -->
-    <section class="feeling" id="feeling-section">
-        <div class="feeling-sticky">
-            <div class="fog-layer"></div>
-            <h2 id="dynamic-text" class="dynamic-text">WEAR THE QUIET FLEX.</h2>
+    <!-- === LAUNCH OVERLAY (Hidden by default) === -->
+    <div id="launchOverlay" class="fixed inset-0 z-[100] pointer-events-none hidden">
+        <div id="crackGraphic" class="crack-line"></div>
+        <div id="whiteFlash" class="absolute inset-0 bg-white opacity-0 transition-opacity duration-200"></div>
+        <div id="postLaunchMessage" class="absolute inset-0 bg-black flex items-center justify-center opacity-0 transition-opacity duration-1000">
+            <h1 class="font-brutal text-4xl md:text-6xl text-white glitch-text" data-text="PREPARE TO OWN THE COLD">PREPARE TO OWN THE COLD</h1>
         </div>
-    </section>
+    </div>
 
-    <!-- Section 5: Craft -->
-    <section class="craft section-padding">
-        <div class="container">
-            <div class="grid-header reveal-up">
-                <span class="mono gold-accent">02 // SPECS</span>
-            </div>
-
-            <ul class="craft-list">
-                <li class="craft-item">
-                    <span>Mixed Metal Options → Affordable</span>
-                    <span class="check">✓</span>
-                </li>
-                <li class="craft-item" style="transition-delay: 0.1s">
-                    <span>Stainless Steel Line → Upgrade Path</span>
-                    <span class="check">✓</span>
-                </li>
-                <li class="craft-item" style="transition-delay: 0.2s">
-                    <span>₹350–₹1200 Entry Range</span>
-                    <span class="check">✓</span>
-                </li>
-                <li class="craft-item" style="transition-delay: 0.3s">
-                    <span>High value without loud branding</span>
-                    <span class="check">✓</span>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- Section 6: Join -->
-    <section class="lead-capture section-padding">
-        <div class="container">
-            <h2 class="reveal-up" style="font-size: 3rem; text-transform: uppercase;">Be First. Drops. Perks.</h2>
-            <p class="mono reveal-up" style="margin-top: 10px; color: var(--gold)">NO SPAM — ONLY STEEL.</p>
-            
-            <form class="form-box reveal-up" id="joinForm">
-                <div class="input-group">
-                    <input type="email" placeholder="EMAIL ADDRESS" required>
-                </div>
-                <div class="input-group">
-                    <input type="text" placeholder="INSTAGRAM (OPTIONAL)">
-                </div>
-                <button type="submit" class="submit-btn">Enter the Circle</button>
-            </form>
-            <p id="successMessage" class="mono gold-accent" style="margin-top: 20px; display: none;">WELCOME TO THE COLD.</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <h3 style="margin-bottom: 20px;">SMOC</h3>
-            <p>Future Looks: COMING SOON</p>
-            <br>
-            <p>&copy; 2025 Self-Made. Own the Cold.</p>
-        </div>
-    </footer>
-
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. INTERSECTION OBSERVER FOR SCROLL REVEALS ---
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px"
+        // CONFIGURATION
+        const CONFIG = {
+            launchDate: new Date('2025-12-14T18:00:00+05:30'), // Dec 14, 2025 6PM IST
+            startDate: new Date('2024-12-01T00:00:00+05:30'), // Reference point for progress bar "growth"
+            instagramUrl: "https://www.instagram.com/smoc_co?igsh=MXcxbXp5MHczZzZiaA=="
         };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in-view');
-                    // Optional: Stop observing once revealed
-                    // observer.unobserve(entry.target); 
-                }
-            });
-        }, observerOptions);
+        // DOM ELEMENTS
+        const cursorTorch = document.getElementById('cursorTorch');
+        const cursorDot = document.getElementById('cursorDot');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const testScreen = document.getElementById('testScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const btnNo = document.getElementById('btnNo');
+        const btnYes = document.getElementById('btnYes');
+        const rejectText = document.getElementById('rejectText');
+        const freezeBar = document.getElementById('freezeBar');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+        const launchOverlay = document.getElementById('launchOverlay');
+        const crackGraphic = document.getElementById('crackGraphic');
+        const whiteFlash = document.getElementById('whiteFlash');
+        const postLaunchMessage = document.getElementById('postLaunchMessage');
+        const brandTitle = document.getElementById('brandTitle');
+        const titleText = brandTitle.querySelector('h1');
 
-        document.querySelectorAll('.reveal-up, .blur-in, .craft-item').forEach(el => {
-            observer.observe(el);
+        // NEW ELEMENTS
+        const freezeContainer = document.getElementById('freezeContainer');
+        const freezeMessage = document.getElementById('freezeMessage');
+        const originalFreezeText = "When the freeze reaches the edge, the real world gets cold.";
+
+        // STATE
+        let easterEggCount = 0;
+        let isLaunched = false;
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            // Check Immediate Launch
+            const now = new Date();
+            if (now >= CONFIG.launchDate) {
+                // If loaded after launch date, skip everything and go to post-launch
+                loadingScreen.style.display = 'none';
+                triggerPostLaunchState();
+            } else {
+                // Start Normal Flow
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    testScreen.style.display = 'flex';
+                    testScreen.classList.add('fade-in');
+                }, 1800);
+            }
+            
+            startCountdown();
         });
 
+        // --- CURSOR LOGIC ---
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+            
+            // Torch lags slightly for fluid feel - using simple follow here for performance
+            cursorTorch.style.left = e.clientX + 'px';
+            cursorTorch.style.top = e.clientY + 'px';
+        });
 
-        // --- 2. DYNAMIC TEXT CHANGE ON SCROLL (Section 4) ---
-        const feelingSection = document.getElementById('feeling-section');
-        const dynamicText = document.getElementById('dynamic-text');
+        // --- SCREEN 1: THE TEST INTERACTIONS ---
         
-        const phrases = [
-            "WEAR THE QUIET FLEX.",
-            "SPEAK LESS. DRIP MORE.",
-            "OWN THE COLD."
-        ];
-
-        window.addEventListener('scroll', () => {
-            const rect = feelingSection.getBoundingClientRect();
-            const viewHeight = window.innerHeight;
+        // NO Button Logic
+        btnNo.addEventListener('mouseenter', () => {
+            btnNo.classList.add('shake');
+            // Randomly freeze cursor (simulated by stopping torch update visually or just styling)
+            cursorDot.style.width = '2px';
+            cursorDot.style.height = '2px';
             
-            // Calculate progress through the section (0 to 1)
-            // We adjust offsets to ensure text changes happen comfortably within the sticky area
-            let progress = (viewHeight - rect.top) / (rect.height + viewHeight);
-            
-            if (progress > 0 && progress < 1) {
-                let index = 0;
-                if (progress > 0.33) index = 1;
-                if (progress > 0.66) index = 2;
+            setTimeout(() => btnNo.classList.remove('shake'), 500);
+        });
 
-                // Only update if text is different to avoid flickering
-                if (dynamicText.innerText !== phrases[index]) {
-                    dynamicText.style.opacity = 0;
-                    setTimeout(() => {
-                        dynamicText.innerText = phrases[index];
-                        dynamicText.style.opacity = 1;
-                    }, 200);
-                }
+        btnNo.addEventListener('mouseleave', () => {
+             cursorDot.style.width = '6px';
+             cursorDot.style.height = '6px';
+        });
+
+        btnNo.addEventListener('click', () => {
+            // Freeze Interaction
+            document.body.style.cursor = 'wait'; // System cursor fallback
+            rejectText.style.opacity = '1';
+            rejectText.classList.add('animate-pulse');
+            
+            // Disable interactions briefly
+            btnYes.style.pointerEvents = 'none';
+            btnNo.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                rejectText.style.opacity = '0';
+                rejectText.classList.remove('animate-pulse');
+                btnYes.style.pointerEvents = 'auto';
+                btnNo.style.pointerEvents = 'auto';
+                document.body.style.cursor = 'none';
+            }, 2000);
+        });
+
+        // YES Button Logic
+        btnYes.addEventListener('click', () => {
+            // Glitch Transition
+            testScreen.classList.add('glitching'); // Add some visual noise
+            
+            // Hard Cut
+            setTimeout(() => {
+                testScreen.style.display = 'none';
+                mainScreen.style.display = 'flex';
+                mainScreen.classList.add('fade-in');
+                
+                // Trigger title glitch once
+                titleText.classList.add('glitching');
+                setTimeout(() => titleText.classList.remove('glitching'), 500);
+            }, 300);
+        });
+
+        // --- SCREEN 2: MAIN LOGIC ---
+
+        // Easter Egg
+        brandTitle.addEventListener('click', () => {
+            easterEggCount++;
+            if (easterEggCount === 3) {
+                // Instant frost expand
+                cursorTorch.style.width = '150vw';
+                cursorTorch.style.height = '150vw';
+                cursorTorch.style.transition = 'all 1s ease-out';
+                cursorTorch.style.background = 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, rgba(0,0,0,0) 80%)';
+                
+                setTimeout(() => {
+                    // Reset
+                    cursorTorch.style.width = '300px';
+                    cursorTorch.style.height = '300px';
+                    cursorTorch.style.background = 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 30%, rgba(0,0,0,0) 70%)';
+                    cursorTorch.style.transition = 'width 0.2s ease, height 0.2s ease';
+                    easterEggCount = 0;
+                }, 1200);
             }
         });
 
+        // Freeze Line Interaction
+        freezeContainer.addEventListener('click', () => {
+            if (isLaunched) return;
 
-        // --- 3. FORM INTERACTION ---
-        const form = document.getElementById('joinForm');
-        const btn = form.querySelector('.submit-btn');
-        const successMsg = document.getElementById('successMessage');
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
+            // 1. Surge Animation
+            const currentWidth = parseFloat(freezeBar.style.width) || 0;
+            // Temporarily override transition for snap effect
+            freezeBar.style.transition = 'width 0.1s cubic-bezier(0.19, 1, 0.22, 1)';
+            // Surge forward by 15%, max 100%
+            freezeBar.style.width = Math.min(currentWidth + 15, 100) + '%';
             
-            // Simulation of "Processing"
-            btn.innerText = "INITIALIZING...";
-            btn.style.opacity = "0.7";
+            // 2. Shake Container
+            freezeContainer.classList.add('shake');
             
+            // 3. Update Message
+            freezeMessage.innerText = "YOU CAN'T RUSH GREATNESS.";
+            freezeMessage.classList.remove('text-gray-600');
+            freezeMessage.classList.add('text-white', 'tracking-widest'); 
+            
+            // 4. Revert
             setTimeout(() => {
-                form.style.display = 'none';
-                successMsg.style.display = 'block';
-                // Trigger Pulse Animation on the section container or text
-                document.querySelector('.lead-capture').classList.add('pulse-aura');
-            }, 1500);
+                freezeContainer.classList.remove('shake');
+                
+                freezeMessage.classList.remove('text-white', 'tracking-widest');
+                freezeMessage.classList.add('text-gray-600');
+                freezeMessage.innerText = originalFreezeText;
+                
+                // Let the next interval tick reset the width naturally
+                // But ensure transition is reset to smooth
+                freezeBar.style.transition = 'width 1s linear';
+            }, 1000);
         });
+
+        // Countdown & Freeze Line Logic
+        function startCountdown() {
+            const timer = setInterval(() => {
+                const now = new Date().getTime();
+                const launchTime = CONFIG.launchDate.getTime();
+                const startTime = CONFIG.startDate.getTime();
+                const distance = launchTime - now;
+
+                if (distance < 0) {
+                    clearInterval(timer);
+                    if (!isLaunched) launchSequence();
+                    return;
+                }
+
+                // Time Format: 14.12 — 18:00
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Formatted string
+                const d = CONFIG.launchDate;
+                const dateStr = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+                
+                // Simple countdown display for technical feel
+                const daysLeft = String(days).padStart(2, '0');
+                const hoursLeft = String(hours).padStart(2, '0');
+                const minLeft = String(minutes).padStart(2, '0');
+                const secLeft = String(seconds).padStart(2, '0');
+                
+                countdownDisplay.innerText = `${daysLeft}d:${hoursLeft}h:${minLeft}m:${secLeft}s`;
+
+                // Progress Bar Logic (Growing from Center)
+                // Calculate percentage elapsed since 'start date' relative to total duration
+                const totalDuration = launchTime - startTime;
+                const elapsed = now - startTime;
+                let percent = (elapsed / totalDuration) * 100;
+                if (percent > 100) percent = 100;
+                if (percent < 0) percent = 0;
+
+                // Only update if not currently shaking (prevents fighting during the interaction)
+                if (!freezeContainer.classList.contains('shake')) {
+                    freezeBar.style.width = `${percent}%`;
+                }
+
+                // Random occasional glitch
+                if (Math.random() > 0.995) {
+                    titleText.classList.add('glitching');
+                    setTimeout(() => titleText.classList.remove('glitching'), 150);
+                }
+
+            }, 1000);
+        }
+
+        // --- LAUNCH SEQUENCE ---
+        function launchSequence() {
+            isLaunched = true;
+            launchOverlay.style.display = 'block';
+            
+            // 1. Freeze line snaps to full
+            freezeBar.style.transition = 'none';
+            freezeBar.style.width = '100%';
+
+            // 2. Crack Animation
+            setTimeout(() => {
+                crackGraphic.style.transform = "translate(-50%, -50%) rotate(45deg) scaleX(1)";
+            }, 100);
+
+            // 3. Screen Flash White
+            setTimeout(() => {
+                whiteFlash.style.opacity = '1';
+            }, 600);
+
+            // 4. Cut to Black & Show Text
+            setTimeout(() => {
+                // Hide main screen content underneath
+                mainScreen.style.display = 'none';
+                whiteFlash.style.opacity = '0'; // Fade out flash to reveal black bg of overlay
+                
+                // Show message
+                setTimeout(() => {
+                   postLaunchMessage.style.opacity = '1'; 
+                }, 500);
+
+            }, 800);
+
+            // 5. Redirect (Simulated delay)
+            setTimeout(() => {
+                window.location.href = "index.html"; // Reloads page to hit the 'if loaded after launch' logic or main site URL
+            }, 4000);
+        }
+
+        function triggerPostLaunchState() {
+            // Immediate state if visited after launch
+            mainScreen.style.display = 'none';
+            testScreen.style.display = 'none';
+            launchOverlay.style.display = 'block';
+            whiteFlash.style.display = 'none';
+            crackGraphic.style.display = 'none';
+            postLaunchMessage.style.opacity = '1';
+            
+            // Maybe add a button here to enter the "Actual" shop
+            const enterBtn = document.createElement('a');
+            enterBtn.innerText = "ENTER STORE";
+            enterBtn.className = "btn-cold font-brutal mt-8 block mx-auto text-center cursor-pointer";
+            enterBtn.style.width = "fit-content";
+            postLaunchMessage.querySelector('div').appendChild(enterBtn);
+        }
 
     </script>
 </body>
